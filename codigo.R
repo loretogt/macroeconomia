@@ -13,7 +13,7 @@ Activos por grupo de edad, sexo y comunidad autónoma. Porcentajes respecto del 
 Tasas de actividad por distintos grupos de edad, sexo y comunidad autónoma
 Variable Tasas de actividad de la población de 16 y más años y de la población de 16 a 64 años por sexo y comunidad autónoma
 
-
+Links donde están las variables 
 http://www.ine.es/jaxiT3/Tabla.htm?t=4932&L=0
 http://www.ine.es/jaxiT3/Tabla.htm?t=4934&L=0
 http://www.ine.es/jaxiT3/Tabla.htm?t=4933&L=0
