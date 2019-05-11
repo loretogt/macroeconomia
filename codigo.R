@@ -1,828 +1,285 @@
-Activos por grupo de edad, sexo y comunidad autónoma. Valores absolutos
-```{r}
-#Se cargan los paquetes que se van a utlizar
 
-library(readxl)
+----------------INFORMACION-----------------
+
+Loreto: Loreto Garcia Tejada
+Titulación: Doble grado en II + ADE - 2019/2020
+Asignatura: Macroeconomía Avanzada y Aplicada ( Economía mundial, española y regional)
+Versión: 2.0
+
+Variables analizadas en este documento
+
+Activos por grupo de edad, sexo y comunidad autónoma. Valores absolutos
+Activos por grupo de edad, sexo y comunidad autónoma. Porcentajes respecto del total de cada comunidad
+Tasas de actividad por distintos grupos de edad, sexo y comunidad autónoma
+Variable Tasas de actividad de la población de 16 y más años y de la población de 16 a 64 años por sexo y comunidad autónoma
+
+
+http://www.ine.es/jaxiT3/Tabla.htm?t=4932&L=0
+http://www.ine.es/jaxiT3/Tabla.htm?t=4934&L=0
+http://www.ine.es/jaxiT3/Tabla.htm?t=4933&L=0
+http://www.ine.es/jaxiT3/Tabla.htm?t=4935&L=0
+----------------IMPORTACION DE LOS DATOS-----------------
+
+```{r}
+
+
+library(pxR)
 library(shiny)
-library(shinydashboard)
-library(dygraphs)
-library(plotly)
-library(shinyWidgets)
+
 
 #Activos por grupo de edad, sexo y comunidad autónoma. Valores absolutos
 
-#Hay que eliminar las 6 primeras filas ya que no son nombres y datos redundantes para la tabla 
-
-url <- "http://www.ine.es/jaxiT3/files/t/es/xlsx/4932.xlsx?nocab=1"
-destfile <- "Porcentajes_respecto_total.xlsx"
-curl::curl_download(url, destfile)
-activos_valores_Abs <- read_excel(destfile, skip = 6, col_names = FALSE)
-
-#Renombro las columnas por numeros para poder hacer una extraccion más facil 
-for ( i in 1:79)
-  colnames(activos_valores_Abs)[i] <- i
-
-#AMBOS SEXOS#
-
-#Extraccion de una subtabla que contenga el total  de ambos sexos 
-ambos_total.1 <- as.data.frame( activos_valores_Abs[2:23,1:14], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_total.1) = ambos_total.1[1,]
-ambos_total.1 = ambos_total.1[-1,]
-ambos_total.1 = ambos_total.1[-1,]
-
-#Extraccion de una subtabla que contenga de 16 a 19 años  de ambos sexos 
-ambos_16_19.1 <- as.data.frame( activos_valores_Abs[2:23,c(1,15:27)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_16_19.1) = ambos_16_19.1[1,]
-ambos_16_19.1 = ambos_16_19.1[-1,]
-ambos_16_19.1 = ambos_16_19.1[-1,]
-
-#Extraccion de una subtabla que contenga de 20 a 24 años  de ambos sexos 
-ambos_20_24.1 <- as.data.frame( activos_valores_Abs[2:23,c(1,28:40)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_20_24.1) = ambos_20_24.1[1,]
-ambos_20_24.1 = ambos_20_24.1[-1,]
-ambos_20_24.1 = ambos_20_24.1[-1,]
-
-#Extraccion de una subtabla que contenga de 25 a 34 años  de ambos sexos 
-ambos_25_34.1 <- as.data.frame( activos_valores_Abs[2:23,c(1,41:53)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_25_34.1) = ambos_25_34.1[1,]
-ambos_25_34.1 = ambos_25_34.1[-1,]
-ambos_25_34.1 = ambos_25_34.1[-1,]
-
-#Extraccion de una subtabla que contenga de 35 a 44 años  de ambos sexos 
-ambos_35_44.1 <- as.data.frame( activos_valores_Abs[2:23,c(1,54:66)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_35_44.1) = ambos_35_44.1[1,]
-ambos_35_44.1 = ambos_35_44.1[-1,]
-ambos_35_44.1 = ambos_35_44.1[-1,]
-
-#Extraccion de una subtabla que contenga de 45 a 54 años  de ambos sexos 
-ambos_45_54.1 <- as.data.frame( activos_valores_Abs[2:23,c(1,67:79)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_45_54.1) = ambos_45_54.1[1,]
-ambos_45_54.1 = ambos_45_54.1[-1,]
-ambos_45_54.1 = ambos_45_54.1[-1,]
-
-#Extraccion de una subtabla que contenga de 55 a mas años  de ambos sexos 
-ambos_55_mas.1 <- as.data.frame( activos_valores_Abs[2:23,c(1,80:92)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_55_mas.1) = ambos_55_mas.1[1,]
-ambos_55_mas.1 = ambos_55_mas.1[-1,]
-ambos_55_mas.1 = ambos_55_mas.1[-1,]
-
-#HOMBRES#
-
-#Extraccion de una subtabla que contenga el total  de hombres
-hombres_total.1 <- as.data.frame( activos_valores_Abs[c(2,25:44),1:14], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_total.1) = hombres_total.1[1,]
-hombres_total.1 = hombres_total.1[-1,]
-
-#Extraccion de una subtabla que contenga de 16 a 19 años  de hombres
-hombres_16_19.1 <- as.data.frame( activos_valores_Abs[c(2,25:44),c(1,15:27)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_16_19.1) = hombres_16_19.1[1,]
-hombres_16_19.1 = hombres_16_19.1[-1,]
-
-#Extraccion de una subtabla que contenga de 20 a 24 años  de hombres 
-hombres_20_24.1 <- as.data.frame( activos_valores_Abs[c(2,25:44),c(1,28:40)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_20_24.1 ) = hombres_20_24.1 [1,]
-hombres_20_24.1  = hombres_20_24.1 [-1,]
-
-#Extraccion de una subtabla que contenga de 25 a 34 años  de hombres 
-hombres_25_34.1 <- as.data.frame( activos_valores_Abs[c(2,25:44),c(1,41:53)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_25_34.1) = hombres_25_34.1[1,]
-hombres_25_34.1 = hombres_25_34.1[-1,]
-
-#Extraccion de una subtabla que contenga de 35 a 44 años  de hombres 
-hombres_35_44.1 <- as.data.frame( activos_valores_Abs[c(2,25:44),c(1,54:66)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_35_44.1) = hombres_35_44.1[1,]
-hombres_35_44.1 = hombres_35_44.1[-1,]
-
-#Extraccion de una subtabla que contenga de 45 a 54 años  de hombres 
-hombres_45_54.1 <- as.data.frame( activos_valores_Abs[c(2,25:44),c(1,67:79)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_45_54.1) = hombres_45_54.1[1,]
-hombres_45_54.1 = hombres_45_54.1[-1,]
-
-#Extraccion de una subtabla que contenga de 55 a mas años  de hombres 
-hombres_55_mas.1 <- as.data.frame( activos_valores_Abs[c(2,25:44),c(1,80:92)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_55_mas.1) = hombres_55_mas.1[1,]
-hombres_55_mas.1 = hombres_55_mas.1[-1,]
-
-#MUJERES#
-
-#Extraccion de una subtabla que contenga el total  de mujeres
-mujeres_total.1 <- as.data.frame( activos_valores_Abs[c(2,46:65),1:14], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_total.1) = mujeres_total.1[1,]
-mujeres_total.1 = mujeres_total.1[-1,]
-
-#Extraccion de una subtabla que contenga de 16 a 19 años  de mujeres
-mujeres_16_19.1 <- as.data.frame( activos_valores_Abs[c(2,46:65),c(1,15:27)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_16_19.1) = mujeres_16_19.1[1,]
-mujeres_16_19.1 = mujeres_16_19.1[-1,]
-
-#Extraccion de una subtabla que contenga de 20 a 24 años  de mujeres
-mujeres_20_24.1 <- as.data.frame( activos_valores_Abs[c(2,46:65),c(1,28:40)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_20_24.1 ) = mujeres_20_24.1 [1,]
-mujeres_20_24.1  = mujeres_20_24.1 [-1,]
-
-#Extraccion de una subtabla que contenga de 25 a 34 años  de mujeres
-mujeres_25_34.1 <- as.data.frame( activos_valores_Abs[c(2,46:65),c(1,41:53)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_25_34.1) = mujeres_25_34.1[1,]
-mujeres_25_34.1 = mujeres_25_34.1[-1,]
-
-#Extraccion de una subtabla que contenga de 35 a 44 años  de mujeres
-mujeres_35_44.1 <- as.data.frame( activos_valores_Abs[c(2,46:65),c(1,54:66)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_35_44.1) = mujeres_35_44.1[1,]
-mujeres_35_44.1 = mujeres_35_44.1[-1,]
-
-#Extraccion de una subtabla que contenga de 45 a 54 años  de mujeres 
-mujeres_45_54.1 <- as.data.frame( activos_valores_Abs[c(2,46:65),c(1,67:79)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_45_54.1) = mujeres_45_54.1[1,]
-mujeres_45_54.1 = mujeres_45_54.1[-1,]
-
-#Extraccion de una subtabla que contenga de 55 a mas años  de mujeres 
-mujeres_55_mas.1 <- as.data.frame( activos_valores_Abs[c(2,46:65),c(1,80:92)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_55_mas.1) = mujeres_55_mas.1[1,]
-mujeres_55_mas.1 = mujeres_55_mas.1[-1,]
-```
-
-Variable Activos por grupo de edad, sexo y comunidad autónoma. Porcentajes respecto del total de cada comunidad
-```{r}
-library(readxl)
-#Variable Activos por grupo de edad, sexo y comunidad autónoma. Porcentajes respecto del total de cada comunidad
-#Hay que eliminar las 6 primeras filas ya que no son nombres y datos redundantes para la tabla 
-
-url <- "http://www.ine.es/jaxiT3/files/t/es/xlsx/4934.xlsx?nocab=1"
-destfile <- "Porcentajes_respecto_total.xlsx"
-curl::curl_download(url, destfile)
-Activos_Porcentajes_respecto_total <- read_excel(destfile, skip = 6, col_names = FALSE)
-
-#Renombro las columnas por numeros para poder hacer una extraccion más facil 
-for ( i in 1:79)
-  colnames(Activos_Porcentajes_respecto_total)[i] <- i
-
-#AMBOS SEXOS#
-
-#Extraccion de una subtabla que contenga el total  de ambos sexos 
-ambos_total.2 <- as.data.frame( Activos_Porcentajes_respecto_total[2:23,1:14], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_total.2) = ambos_total.2[1,]
-ambos_total.2 = ambos_total.2[-1,]
-ambos_total.2 = ambos_total.2[-1,]
-
-#Extraccion de una subtabla que contenga de 16 a 19 años  de ambos sexos 
-ambos_16_19.2 <- as.data.frame( Activos_Porcentajes_respecto_total[2:23,c(1,15:27)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_16_19.2) = ambos_16_19.2[1,]
-ambos_16_19.2 = ambos_16_19.2[-1,]
-ambos_16_19.2 = ambos_16_19.2[-1,]
-
-#Extraccion de una subtabla que contenga de 20 a 24 años  de ambos sexos 
-ambos_20_24.2 <- as.data.frame( Activos_Porcentajes_respecto_total[2:23,c(1,28:40)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_20_24.2) = ambos_20_24.2[1,]
-ambos_20_24.2 = ambos_20_24.2[-1,]
-ambos_20_24.2 = ambos_20_24.2[-1,]
-
-#Extraccion de una subtabla que contenga de 25 a 34 años  de ambos sexos 
-ambos_25_34.2 <- as.data.frame( Activos_Porcentajes_respecto_total[2:23,c(1,41:53)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_25_34.2) = ambos_25_34.2[1,]
-ambos_25_34.2 = ambos_25_34.2[-1,]
-ambos_25_34.2 = ambos_25_34.2[-1,]
-
-#Extraccion de una subtabla que contenga de 35 a 44 años  de ambos sexos 
-ambos_35_44.2 <- as.data.frame( Activos_Porcentajes_respecto_total[2:23,c(1,54:66)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_35_44.2) = ambos_35_44.2[1,]
-ambos_35_44.2 = ambos_35_44.2[-1,]
-ambos_35_44.2 = ambos_35_44.2[-1,]
-
-#Extraccion de una subtabla que contenga de 45 a 54 años  de ambos sexos 
-ambos_45_54.2 <- as.data.frame( Activos_Porcentajes_respecto_total[2:23,c(1,67:79)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_45_54.2) = ambos_45_54.2[1,]
-ambos_45_54.2 = ambos_45_54.2[-1,]
-ambos_45_54.2 = ambos_45_54.2[-1,]
-S Z
-#Extraccion de una subtabla que contenga de 55 a mas años  de ambos sexos 
-ambos_55_mas.2 <- as.data.frame( Activos_Porcentajes_respecto_total[2:23,c(1,80:92)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_55_mas.2) = ambos_55_mas.2[1,]
-ambos_55_mas.2 = ambos_55_mas.2[-1,]
-ambos_55_mas.2 = ambos_55_mas.2[-1,]
-
-#HOMBRES#
-
-#Extraccion de una subtabla que contenga el total  de hombres
-hombres_total.2 <- as.data.frame( Activos_Porcentajes_respecto_total[c(2,25:44),1:14], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_total.2) = hombres_total.2[1,]
-hombres_total.2 = hombres_total.2[-1,]
-
-#Extraccion de una subtabla que contenga de 16 a 19 años  de hombres
-hombres_16_19.2 <- as.data.frame( Activos_Porcentajes_respecto_total[c(2,25:44),c(1,15:27)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_16_19.2) = hombres_16_19.2[1,]
-hombres_16_19.2 = hombres_16_19.2[-1,]
-
-#Extraccion de una subtabla que contenga de 20 a 24 años  de hombres 
-hombres_20_24.2 <- as.data.frame( Activos_Porcentajes_respecto_total[c(2,25:44),c(1,28:40)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_20_24.2 ) = hombres_20_24.2 [1,]
-hombres_20_24.2  = hombres_20_24.2 [-1,]
-
-#Extraccion de una subtabla que contenga de 25 a 34 años  de hombres 
-hombres_25_34.2 <- as.data.frame( Activos_Porcentajes_respecto_total[c(2,25:44),c(1,41:53)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_25_34.2) = hombres_25_34.2[1,]
-hombres_25_34.2 = hombres_25_34.2[-1,]
-
-#Extraccion de una subtabla que contenga de 35 a 44 años  de hombres 
-hombres_35_44.2 <- as.data.frame( Activos_Porcentajes_respecto_total[c(2,25:44),c(1,54:66)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_35_44.2) = hombres_35_44.2[1,]
-hombres_35_44.2 = hombres_35_44.2[-1,]
-
-#Extraccion de una subtabla que contenga de 45 a 54 años  de hombres 
-hombres_45_54.2 <- as.data.frame( Activos_Porcentajes_respecto_total[c(2,25:44),c(1,67:79)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_45_54.2) = hombres_45_54.2[1,]
-hombres_45_54.2 = hombres_45_54.2[-1,]
-
-#Extraccion de una subtabla que contenga de 55 a mas años  de hombres 
-hombres_55_mas.2 <- as.data.frame( Activos_Porcentajes_respecto_total[c(2,25:44),c(1,80:92)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_55_mas.2) = hombres_55_mas.2[1,]
-hombres_55_mas.2 = hombres_55_mas.2[-1,]
-
-#MUJERES#
-
-#Extraccion de una subtabla que contenga el total  de mujeres
-mujeres_total.2 <- as.data.frame( Activos_Porcentajes_respecto_total[c(2,46:65),1:14], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_total.2) = mujeres_total.2[1,]
-mujeres_total.2 = mujeres_total.2[-1,]
-
-#Extraccion de una subtabla que contenga de 16 a 19 años  de mujeres
-mujeres_16_19.2 <- as.data.frame( Activos_Porcentajes_respecto_total[c(2,46:65),c(1,15:27)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_16_19.2) = mujeres_16_19.2[1,]
-mujeres_16_19.2 = mujeres_16_19.2[-1,]
-
-#Extraccion de una subtabla que contenga de 20 a 24 años  de mujeres
-mujeres_20_24.2 <- as.data.frame( Activos_Porcentajes_respecto_total[c(2,46:65),c(1,28:40)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_20_24.2 ) = mujeres_20_24.2 [1,]
-mujeres_20_24.2  = mujeres_20_24.2 [-1,]
-
-#Extraccion de una subtabla que contenga de 25 a 34 años  de mujeres
-mujeres_25_34.2 <- as.data.frame( Activos_Porcentajes_respecto_total[c(2,46:65),c(1,41:53)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_25_34.2) = mujeres_25_34.2[1,]
-mujeres_25_34.2 = mujeres_25_34.2[-1,]
-
-#Extraccion de una subtabla que contenga de 35 a 44 años  de mujeres
-mujeres_35_44.2 <- as.data.frame( Activos_Porcentajes_respecto_total[c(2,46:65),c(1,54:66)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_35_44.2) = mujeres_35_44.2[1,]
-mujeres_35_44.2 = mujeres_35_44.2[-1,]
-
-#Extraccion de una subtabla que contenga de 45 a 54 años  de mujeres 
-mujeres_45_54.2 <- as.data.frame( Activos_Porcentajes_respecto_total[c(2,46:65),c(1,67:79)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_45_54.2) = mujeres_45_54.2[1,]
-mujeres_45_54.2 = mujeres_45_54.2[-1,]
-
-#Extraccion de una subtabla que contenga de 55 a mas años  de mujeres 
-mujeres_55_mas.2 <- as.data.frame( Activos_Porcentajes_respecto_total[c(2,46:65),c(1,80:92)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_55_mas.2) = mujeres_55_mas.2[1,]
-mujeres_55_mas.2 = mujeres_55_mas.2[-1,]
-```
-
-Tasas de actividad por distintos grupos de edad, sexo y comunidad autónoma
-```{r}
-library(readxl)
-url <- "http://www.ine.es/jaxiT3/files/t/es/xlsx/4933.xlsx?nocab=1"
-destfile <- "Tasas_actividad.xlsx"
-curl::curl_download(url, destfile)
-Tasas_actividad <- read_excel(destfile, skip = 6, 
-                              col_names = FALSE)
-
-#Renombro las columnas por numeros para poder hacer una extraccion más facil 
-for ( i in 1:79)
-  colnames(Tasas_actividad)[i] <- i
-
-#AMBOS SEXOS#
-
-#Extraccion de una subtabla que contenga el total  de ambos sexos 
-ambos_total.3 <- as.data.frame( Tasas_actividad[2:23,1:14], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_total.3) = ambos_total.3[1,]
-ambos_total.3 = ambos_total.3[-1,]
-ambos_total.3 = ambos_total.3[-1,]
-
-#Extraccion de una subtabla que contenga los menores de 25  de ambos sexos 
-ambos_menos25.3 <- as.data.frame( Tasas_actividad[2:23,c(1,15:27)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_menos25.3) = ambos_menos25.3[1,]
-ambos_menos25.3 = ambos_menos25.3[-1,]
-ambos_menos25.3 = ambos_menos25.3[-1,]
-
-#Extraccion de una subtabla que contenga de 25 y mas añso  de ambos sexos 
-ambos_25_mas.3 <- as.data.frame( Tasas_actividad[2:23,c(1,28:40)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_25_mas.3) = ambos_25_mas.3[1,]
-ambos_25_mas.3 = ambos_25_mas.3[-1,]
-ambos_25_mas.3 = ambos_25_mas.3[-1,]
-
-#Extraccion de una subtabla que contenga de 16 a 19 años  de ambos sexos 
-ambos_16_19.3 <- as.data.frame( Tasas_actividad[2:23,c(1,41:53)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_16_19.3) = ambos_16_19.3[1,]
-ambos_16_19.3 = ambos_16_19.3[-1,]
-ambos_16_19.3 = ambos_16_19.3[-1,]
-
-#Extraccion de una subtabla que contenga de 20 a 24 años  de ambos sexos 
-ambos_20_24.3 <- as.data.frame( Tasas_actividad[2:23,c(1,54:66)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_20_24.3) = ambos_20_24.3[1,]
-ambos_20_24.3 = ambos_20_24.3[-1,]
-ambos_20_24.3 = ambos_20_24.3[-1,]
-
-#Extraccion de una subtabla que contenga de 25 a 54 años  de ambos sexos 
-ambos_25_54.3 <- as.data.frame( Tasas_actividad[2:23,c(1,67:79)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_25_54.3) = ambos_25_54.3[1,]
-ambos_25_54.3 = ambos_25_54.3[-1,]
-ambos_25_54.3 = ambos_25_54.3[-1,]
-
-#Extraccion de una subtabla que contenga de 55 a mas años  de ambos sexos 
-ambos_55_mas.3 <- as.data.frame( Tasas_actividad[2:23,c(1,80:92)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(ambos_55_mas.3) = ambos_55_mas.3[1,]
-ambos_55_mas.3 = ambos_55_mas.3[-1,]
-ambos_55_mas.3 = ambos_55_mas.3[-1,]
-
-#HOMBRES#
-
-#Extraccion de una subtabla que contenga el total  de hombres
-hombres_total.3 <- as.data.frame( Tasas_actividad[c(2,25:44),1:14], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_total.3) = hombres_total.3[1,]
-hombres_total.3 = hombres_total.3[-1,]
-
-#Extraccion de una subtabla que contenga menos 25  de hombres
-hombres_menos_25.3 <- as.data.frame( Tasas_actividad[c(2,25:44),c(1,15:27)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_menos_25.3) = hombres_menos_25.3[1,]
-hombres_menos_25.3 = hombres_menos_25.3[-1,]
-
-#Extraccion de una subtabla que contenga de 25 y mas añs  de hombres 
-hombres_25_mas.3 <- as.data.frame( Tasas_actividad[c(2,25:44),c(1,28:40)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_25_mas.3 ) = hombres_25_mas.3 [1,]
-hombres_25_mas.3  = hombres_25_mas.3 [-1,]
-
-#Extraccion de una subtabla que contenga de 16 a 19 años  de hombres 
-hombres_16_19.3 <- as.data.frame( Tasas_actividad[c(2,25:44),c(1,41:53)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_16_19.3) = hombres_16_19.3[1,]
-hombres_16_19.3 = hombres_16_19.3[-1,]
-
-#Extraccion de una subtabla que contenga de 20 a 24 años  de hombres 
-hombres_20_24.3 <- as.data.frame( Tasas_actividad[c(2,25:44),c(1,54:66)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_20_24.3) = hombres_20_24.3[1,]
-hombres_20_24.3 = hombres_20_24.3[-1,]
-
-#Extraccion de una subtabla que contenga de 25 a 54 años  de hombres 
-hombres_25_54.3 <- as.data.frame( Tasas_actividad[c(2,25:44),c(1,67:79)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_25_54.3) = hombres_25_54.3[1,]
-hombres_25_54.3 = hombres_25_54.3[-1,]
-
-#Extraccion de una subtabla que contenga de 55 a mas años  de hombres 
-hombres_55_mas.3 <- as.data.frame( Tasas_actividad[c(2,25:44),c(1,80:92)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(hombres_55_mas.3) = hombres_55_mas.3[1,]
-hombres_55_mas.3 = hombres_55_mas.3[-1,]
-
-#MUJERES#
-
-#Extraccion de una subtabla que contenga el total  de mujeres
-mujeres_total.3 <- as.data.frame( Tasas_actividad[c(2,46:65),1:14], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_total.3) = mujeres_total.3[1,]
-mujeres_total.3 = mujeres_total.3[-1,]
-
-#Extraccion de una subtabla que contenga de menos 25 años  de mujeres
-mujeres_menos_25.3 <- as.data.frame( Tasas_actividad[c(2,46:65),c(1,15:27)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_menos_25.3) = mujeres_menos_25.3[1,]
-mujeres_menos_25.3 = mujeres_menos_25.3[-1,]
-
-#Extraccion de una subtabla que contenga de 25 a mas años  de mujeres
-mujeres_25_mas.3 <- as.data.frame( Tasas_actividad[c(2,46:65),c(1,28:40)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_25_mas.3 ) = mujeres_25_mas.3 [1,]
-mujeres_25_mas.3  = mujeres_25_mas.3 [-1,]
-
-#Extraccion de una subtabla que contenga de 16 a 19 años  de mujeres
-mujeres_16_19.3 <- as.data.frame( Tasas_actividad[c(2,46:65),c(1,41:53)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_16_19.3) = mujeres_16_19.3[1,]
-mujeres_16_19.3 = mujeres_16_19.3[-1,]
-
-#Extraccion de una subtabla que contenga de 20 a 24 años  de mujeres
-mujeres_20_24.3 <- as.data.frame( Tasas_actividad[c(2,46:65),c(1,54:66)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_20_24.3) = mujeres_20_24.3[1,]
-mujeres_20_24.3 = mujeres_20_24.3[-1,]
-
-#Extraccion de una subtabla que contenga de 25 a 54 años  de mujeres 
-mujeres_25_54.3 <- as.data.frame( Tasas_actividad[c(2,46:65),c(1,67:79)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_25_54.3) = mujeres_25_54.3[1,]
-mujeres_20_24.3 = mujeres_25_54.3[-1,]
-
-#Extraccion de una subtabla que contenga de 55 a mas años  de mujeres 
-mujeres_55_mas.3 <- as.data.frame( Tasas_actividad[c(2,46:65),c(1,80:92)], drop=false)
-#cambiamos el nombre de las columnas a los años 
-colnames(mujeres_55_mas.3) = mujeres_55_mas.3[1,]
-mujeres_55_mas.3 = mujeres_55_mas.3[-1,]
+activos_valores_Abs<- read.px("http://www.ine.es/jaxiT3/files/t/es/px/4932.px?nocab=1")
+activos_valores_Abs <- as.data.frame(activos_valores_Abs)
+
+#Eliminamos el numero en las comunidades autonomas 
+activos_valores_Abs[,3]<- gsub("[0-9]+", "",activos_valores_Abs[,3])
+names(activos_valores_Abs)[3]<-paste("Comunidades")
+names(activos_valores_Abs)[5]<-paste("Valor")
+
+
+
+#Activos por grupo de edad, sexo y comunidad autónoma. Porcentajes respecto del total de cada comunidad
+
+Activos_Porcentajes_respecto_total<- read.px("http://www.ine.es/jaxiT3/files/t/es/px/4934.px?nocab=1")
+Activos_Porcentajes_respecto_total <- as.data.frame(Activos_Porcentajes_respecto_total)
+
+#Eliminamos el numero en las comunidades autonomas 
+Activos_Porcentajes_respecto_total[,3]<- gsub("[0-9]+", "",Activos_Porcentajes_respecto_total[,3])
+names(Activos_Porcentajes_respecto_total)[3]<-paste("Comunidades")
+names(Activos_Porcentajes_respecto_total)[5]<-paste("Valor")
+
+
+
+#Tasas de actividad por distintos grupos de edad, sexo y comunidad autónoma
+
+Tasas_actividad<- read.px("http://www.ine.es/jaxiT3/files/t/es/px/4933.px?nocab=1")
+Tasas_actividad <- as.data.frame(Tasas_actividad)
+
+#Eliminamos el numero en las comunidades autonomas 
+Tasas_actividad[,3]<- gsub("[0-9]+", "",Tasas_actividad[,3])
+names(Tasas_actividad)[3]<-paste("Comunidades")
+names(Tasas_actividad)[5]<-paste("Valor")
+
+
+
+#Variable Tasas de actividad de la población de 16 y más años y de la población de 16 a 64 años por sexo y comunidad autónoma
+
+activos_vabs<- read.px("http://www.ine.es/jaxiT3/files/t/es/px/4935.px?nocab=1")
+activos_vabs <- as.data.frame(activos_vabs)
+
+#Eliminamos el numero en las comunidades autonomas 
+activos_vabs[,4]<- gsub("[0-9]+", "",activos_vabs[,4])
+names(activos_vabs)[4]<-paste("Comunidades")
+names(activos_vabs)[5]<-paste("Valor")
+
+años1<-  activos_valores_Abs[ activos_valores_Abs$Periodo=="2015" & activos_valores_Abs$Comunidades=="Total Nacional" & activos_valores_Abs$Sexo=="Mujeres", ];
+años2<-  Activos_Porcentajes_respecto_total[ Activos_Porcentajes_respecto_total$Periodo=="2015" & Activos_Porcentajes_respecto_total$Comunidades=="Total Nacional" & Activos_Porcentajes_respecto_total$Sexo=="Mujeres", ];
+años3<-  Tasas_actividad[ Tasas_actividad$Periodo=="2015" & Tasas_actividad$Comunidades=="Total Nacional" & Tasas_actividad$Sexo=="Mujeres", ];
+
+nombrescom<-  activos_vabs[ activos_vabs$Periodo=="2015"& activos_vabs$Sexo=="Ambos sexos" & activos_vabs$Edad=="Total", ];
+nomaños<-activos_vabs[  activos_vabs$Sexo=="Ambos sexos" & activos_vabs$Edad=="Total" & activos_vabs$Comunidades=="Total Nacional", ];
+años<-nomaños[1]
+
+graf<-activos_vabs[activos_vabs$Comunidades=="Total Nacional" & activos_vabs$Sexo=="Ambos sexos" & activos_vabs$Edad=="Total", ];
+values<-as.data.frame(graf[5])
+values<-t(t(values))
+
+
+
+
 
 ```
 
-Variable Tasas de actividad de la población de 16 y más años y de la población de 16 a 64 años por sexo y comunidad autónoma
+
+----------------SHINY APP-----------------
 ```{r}
-# Variable Tasas de actividad de la población de 16 y más años y de la población de 16 a 64 años por sexo y comunidad autónoma
-url <- "http://www.ine.es/jaxiT3/files/t/es/xlsx/4935.xlsx?nocab=1"
-destfile <- "activos_va.xlsx"
-curl::curl_download(url, destfile)
-activos_VA <- read_excel(destfile, skip = 6,
-                         col_names = FALSE)
-#Renombro las columnas por numeros para poder hacer una extraccion
-for ( i in 1:79)
-  colnames(activos_VA)[i] <- i
 
-#Extraccion de una subtabla que contenga el total de ambos sexos
-total_ambos.4 <- as.data.frame( activos_VA[3:23,1:14], drop=false)
-#cambiamos el nombre de las columnas a los años
-colnames(total_ambos.4) = total_ambos.4[1,]
-total_ambos.4 = total_ambos.4[-1,]
-
-#Extraccion de una subtabla que contenga el total de hombres
-total_hombres.4 <- as.data.frame( activos_VA[3:23,c(1,15:27)], drop=false)
-#cambiamos el nombre de las columnas a los años
-colnames(total_hombres.4) = total_hombres.4[1,]
-total_hombres.4 = total_hombres.4[-1,]
-
-#Extraccion de una subtabla que contenga el total mujeres
-total_mujeres.4 <- as.data.frame( activos_VA[3:23,c(1,28:40)], drop=false)
-#cambiamos el nombre de las columnas a los años
-colnames(total_mujeres.4) = total_mujeres.4[1,]
-total_mujeres.4 = total_mujeres.4[-1,]
-
-#Extraccion de una subtabla que contenga de 16 a 64 ambos sexos
-ambos_16_64.4 <- as.data.frame( activos_VA[3:23,c(1,41:53)], drop=false)
-#cambiamos el nombre de las columnas a los años
-colnames(ambos_16_64.4) = ambos_16_64.4[1,]
-ambos_16_64.4 = ambos_16_64.4[-1,]
-
-#Extraccion de una subtabla que contenga de 16 a 64  hombres
-hombres_16_64.4 <- as.data.frame( activos_VA[3:23,c(1,54:66)], drop=false)
-#cambiamos el nombre de las columnas a los años
-colnames(hombres_16_64.4) = hombres_16_64.4[1,]
-hombres_16_64.4 = hombres_16_64.4[-1,]
-
-#Extraccion de una subtabla que contenga de 16 a 64 mujeres
-mujeres_16_64.4 <- as.data.frame( activos_VA[3:23,c(1,67:79)], drop=false)
-#cambiamos el nombre de las columnas a los años
-colnames(mujeres_16_64.4) = mujeres_16_64.4[1,]
-mujeres_16_64.4 = mujeres_16_64.4[-1,]
-```
-
-
-Shiny
-```{r}
 library(shiny)
 library(readxl)
 library(shiny)
 library(dygraphs)
 library(plotly)
+library(shinydashboard)
+library(dygraphs)
+library(shinyWidgets)
+library(ggplot2)
+library(shinythemes)
+library(sp)
+
+
 # Define UI for application that draws a histogram
-ui <- navbarPage(title= "Variables",
-                 tabPanel("1. Activos por grupo de edad, sexo y comunidad autónoma. Valores absolutos",
-                          sidebarLayout(
-                            sidebarPanel(
-                              selectInput("com1","Comunidades Autónomas:",choices = c("Total Nacional"=1,
-                                                                                     "Andalucía"=2,
-                                                                                     "Aragón"=3,
-                                                                                     "Principado de Asturias"=4, 
-                                                                                     "Islas Baleares"=5,
-                                                                                     "Canarias"=6,
-                                                                                     "Cantabria"=7,
-                                                                                     "Castilla y León"=8, 
-                                                                                     "Castilla-La Mancha"=9, 
-                                                                                     "Cataluña"=10,
-                                                                                     "Comunidad Valenciana"=11,
-                                                                                     "Extremadura"=12,
-                                                                                     "Galicia"=13, 
-                                                                                     "Comunidad de Madrid"=14,
-                                                                                     "Región de Murcia"=15, 
-                                                                                     "Comunidad Foral de Navarra"=16, 
-                                                                                     "Pais Vasco"=17 , 
-                                                                                     "La Rioja"=18, 
-                                                                                     "Ceuta"=19,
-                                                                                     "Melilla"=20 )),
-                              
-                              selectInput("edad1","Edades:",choices = c("Total"=1,"De 16 a 19 años"=2,"De 20 a 24 años"=3,
-                                                                          "De 25 a 34 años"=4,"De 35 a 44 años"=5,"
-                                                                         De 45 a 55 años"= 6,"De 55 a más años"=7)),
-                              radioButtons("sexo1","Sexo:",choices = c("Ambos sexos","Hombres","Mujeres"))
-                            ),
-                            
-                            
-                            
-                            # Show a plot of the generated distribution
-                            mainPanel(
-                              tabsetPanel(
-                                tabPanel("Grafico", plotlyOutput("graf1")),
-                                tabPanel("Datos", tableOutput("dat1"))
-                              )
-                            )
-                          )),
-                 
-                 tabPanel("2. Activos por grupo de edad, sexo y comunidad autónoma. Porcentajes respecto del total de cada comunidad",
-                          sidebarLayout(
-                            sidebarPanel(
-                              selectInput("com2","Comunidades Autónomas:",choices = c("Total Nacional"=1,
-                                                                                     "Andalucía"=2,
-                                                                                     "Aragón"=3,
-                                                                                     "Principado de Asturias"=4, 
-                                                                                     "Islas Baleares"=5,
-                                                                                     "Canarias"=6,
-                                                                                     "Cantabria"=7,
-                                                                                     "Castilla y León"=8, 
-                                                                                     "Castilla-La Mancha"=9, 
-                                                                                     "Cataluña"=10,
-                                                                                     "Comunidad Valenciana"=11,
-                                                                                     "Extremadura"=12,
-                                                                                     "Galicia"=13, 
-                                                                                     "Comunidad de Madrid"=14,
-                                                                                     "Región de Murcia"=15, 
-                                                                                     "Comunidad Foral de Navarra"=16, 
-                                                                                     "Pais Vasco"=17 , 
-                                                                                     "La Rioja"=18, 
-                                                                                     "Ceuta"=19,
-                                                                                     "Melilla"=20 )),
-                              
-                              selectInput("edad2","Edades:",choices = c("De 16 a 19 años"=2,"De 20 a 24 años"=3,"De 25 a 34 años"=4,"De 35 a 44 años"=5,"
-                                               De 45 a 55 años"= 6,"De 55 a más años"=7)),
-                              radioButtons("sexo2","Sexo:",choices = c("Ambos sexos","Hombres","Mujeres"))
-                            ),
-                            
-                            
-                            
-                            # Show a plot of the generated distribution
-                            mainPanel(
-                              tabsetPanel(
-                                tabPanel("Grafico", plotlyOutput("graf2")),
-                                tabPanel("Datos", tableOutput("dat2"))
-                              )
-                            )
-                          )),
-                 
-                 tabPanel("3. Tasas de actividad por distintos grupos de edad, sexo y comunidad autónoma",
-                          sidebarLayout(
-                            sidebarPanel(
-                              selectInput("com3","Comunidades Autónomas:",choices = c("Total Nacional"=1,
-                                                                                     "Andalucía"=2,
-                                                                                     "Aragón"=3,
-                                                                                     "Principado de Asturias"=4, 
-                                                                                     "Islas Baleares"=5,
-                                                                                     "Canarias"=6,
-                                                                                     "Cantabria"=7,
-                                                                                     "Castilla y León"=8, 
-                                                                                     "Castilla-La Mancha"=9, 
-                                                                                     "Cataluña"=10,
-                                                                                     "Comunidad Valenciana"=11,
-                                                                                     "Extremadura"=12,
-                                                                                     "Galicia"=13, 
-                                                                                     "Comunidad de Madrid"=14,
-                                                                                     "Región de Murcia"=15, 
-                                                                                     "Comunidad Foral de Navarra"=16, 
-                                                                                     "Pais Vasco"=17 , 
-                                                                                     "La Rioja"=18, 
-                                                                                     "Ceuta"=19,
-                                                                                     "Melilla"=20 )),
-                              
-                              selectInput("edad3","Edades:",choices = c("Total"=1,"Menos de 25 años"=6, "Más de 25 años"=7, "De 16 a 19 años"=2,"De 20 a 24 años"=3,
-                                                                       "De 25 a 54 años"=4,"De 55 a más años"=5 )),
-                              radioButtons("sexo3","Sexo:",choices = c("Ambos sexos","Hombres","Mujeres"))
-                            ),
-                            
-                            mainPanel(
-                              tabsetPanel(
-                                tabPanel("Grafico", plotlyOutput("graf3")),
-                                tabPanel("Datos", tableOutput("dat3"))
-                              )
-                            )
-                          )),
-                 
-                 tabPanel("4. Tasas de actividad de la población de 16 y más años y de la población de 16 a 64 años por sexo y comunidad autónoma",
-                          sidebarPanel(
-                            selectInput("com4","Comunidades Autónomas:",choices = c("Total Nacional"=1,
-                                                                                    "Andalucía"=2,
-                                                                                    "Aragón"=3,
-                                                                                    "Principado de Asturias"=4, 
-                                                                                    "Islas Baleares"=5,
-                                                                                    "Canarias"=6,
-                                                                                    "Cantabria"=7,
-                                                                                    "Castilla y León"=8, 
-                                                                                    "Castilla-La Mancha"=9, 
-                                                                                    "Cataluña"=10,
-                                                                                    "Comunidad Valenciana"=11,
-                                                                                    "Extremadura"=12, 
-                                                                                    "Galicia"=13, 
-                                                                                    "Comunidad de Madrid"=14,
-                                                                                    "Región de Murcia"=15, 
-                                                                                    "Comunidad Foral de Navarra"=16, 
-                                                                                    "Pais Vasco"=17 ,
-                                                                                    "La Rioja"=18,
-                                                                                    "Ceuta"=19,
-                                                                                    "Melilla"=20 )),
-                            
-                            radioButtons("sexo4","Sexo:",choices = c("Ambos sexos","Hombres","Mujeres")),
-                            radioButtons("edad4","Edades:",choices = c("Total","De 16 a 64 años"))
-                          ),
-                          mainPanel(
-                            tabsetPanel(
-                              tabPanel("Grafico", plotlyOutput("graf4")),
-                              tabPanel("Datos", tableOutput("dat4"))
-                            )
+ui <- navbarPage(
+  theme = shinytheme("flatly"),
+  title= "Proyecto Loreto",
+  navbarMenu("Variables",
+             tabPanel("Activos por grupo de edad, sexo y comunidad autónoma. Valores absolutos",
+                      sidebarLayout(
+                        sidebarPanel(
+                          selectInput("com1","Comunidades Autónomas:",choices = c(nombrescom[4])),
+                          selectInput("edad1","Edades:",choices = c(años1[2])),
+                          radioButtons("sexo1","Sexo:",choices = c("Ambos sexos","Hombres","Mujeres")),
+                          selectInput("años1","Año:", choices = c(años))
+                        ),
+                        
+                        
+                        
+                        # Show a plot of the generated distribution
+                        mainPanel(
+                          tabsetPanel(
+                            tabPanel("Grafico", plotlyOutput("graf1"),
+                                     h5( "Seleccione la comunidad autonoma, la edad y el sexo del que quiera ver el gráfico")),
+                            tabPanel("Valores del gráfio", tableOutput("dat1"),
+                                     h5( "Seleccione la comunidad autonoma, la edad y el sexo del que quiera ver la tabla")),
+                            tabPanel("Tabla en función del año", tableOutput("tab1"),
+                                     h5( "Seleccione el año, el sexo y la edad del que quiera ver los valores")),
+                            h4("Activos por grupo de edad, sexo y comunidad autónoma. Valores absolutos")
                           )
-                 )
+                        )
+                      )),
+             
+             tabPanel("Activos por grupo de edad, sexo y comunidad autónoma. Porcentajes respecto del total de cada comunidad",
+                      sidebarLayout(
+                        sidebarPanel(
+                          selectInput("com2","Comunidades Autónomas:",choices = c(nombrescom[4])),
+                          selectInput("edad2","Edades:",choices = c(años2[2])),
+                          radioButtons("sexo2","Sexo:",choices = c("Ambos sexos","Hombres","Mujeres")),
+                          selectInput("años2","Año:", choices = c(años))
+                          
+                        ),
+                        
+                        
+                        
+                        # Show a plot of the generated distribution
+                        mainPanel(
+                          tabsetPanel(
+                            tabPanel("Grfico", plotlyOutput("graf2"),
+                                     h5( "Seleccione la comunidad autonoma, la edad y el sexo del que quiera ver el gráfico")),
+                            tabPanel("Valores del gráfio", tableOutput("dat2"),
+                                     h5( "Seleccione la comunidad autonoma, la edad y el sexo del que quiera ver la tabla")),
+                            tabPanel("Tabla en función del año", tableOutput("tab2"),
+                                     h5( "Seleccione el año, el sexo y la edad del que quiera ver los valores")),
+                            h4("Activos por grupo de edad, sexo y comunidad autónoma. Porcentajes respecto del total de cada comunidad")
+                          )
+                        )
+                      )),
+             
+             tabPanel("Tasas de actividad por distintos grupos de edad, sexo y comunidad autónoma",
+                      sidebarLayout(
+                        sidebarPanel(
+                          selectInput("com3","Comunidades Autónomas:",choices = c(nombrescom[4])),
+                          selectInput("edad3","Edades:",choices = c(años3[2])),
+                          radioButtons("sexo3","Sexo:",choices = c("Ambos sexos","Hombres","Mujeres")),
+                          selectInput("años3","Año:", choices = c(años))
+                          
+                        ),
+                        
+                        mainPanel(
+                          tabsetPanel(
+                            tabPanel("Grfico", plotlyOutput("graf3"),
+                                     h5( "Seleccione la comunidad autonoma, la edad y el sexo del que quiera ver el gráfico")),
+                            tabPanel("Valores del gráfio", tableOutput("dat3"),
+                                     h5( "Seleccione la comunidad autonoma, la edad y el sexo del que quiera ver la tabla")),
+                            tabPanel("Tabla en función del año", tableOutput("tab3"),
+                                     h5( "Seleccione el año, el sexo y la edad del que quiera ver los valores")),
+                            h4("Tasas de actividad por distintos grupos de edad, sexo y comunidad autónoma")
+                          )
+                        )
+                      )),
+             
+             tabPanel(" Tasas de actividad de la población de 16 y más años y de la población de 16 a 64 años por sexo y comunidad autónoma",
+                      sidebarPanel(
+                        selectInput("com4","Comunidades Autónomas:",choices = c(nombrescom[4])),
+                        radioButtons("sexo4","Sexo:",choices = c("Ambos sexos","Hombres","Mujeres")),
+                        radioButtons("edad4","Edades:",choices = c("Total","De 16 a 64 años")),
+                        selectInput("años4","Año:", choices = c(años))
+                        
+                      ),
+                      mainPanel(
+                        tabsetPanel(
+                          tabPanel("Grfico", plotlyOutput("graf4"), 
+                                   h5( "Seleccione la comunidad autonoma, la edad y el sexo del que quiera ver el gráfico")),
+                          tabPanel("Valores del gráfio", tableOutput("dat4"), 
+                                   h5( "Seleccione la comunidad autonoma, la edad y el sexo del que quiera ver la tabla")),
+                          tabPanel("Tabla en función del año", tableOutput("tab4"),
+                                   h5( "Seleccione el año, el sexo y la edad del que quiera ver los valores")),
+                          tabPanel("Mapa", plotOutput("map4"),
+                                   h5( "Seleccione el año, el sexo y la edad del que quiera ver los valores")),
+                          h4("Tasas de actividad de la población de 16 y más años y de la población de 16 a 64 años por sexo y comunidad autónoma ")
+                        )
+                      )
+             )
+  ),
+  tabPanel("Informe "
+  ),
+  
+  tabPanel("Descargas",
+           selectInput("dataset", "Escoge una Variable:",width ='1000px',
+                       choices = c("Activos por grupo de edad, sexo y comunidad autónoma. Valores absolutos", 
+                                   "Activos por grupo de edad, sexo y comunidad autónoma. 
+                                        Porcentajes respecto del total de cada comunidad",
+                                   "Tasas de actividad por distintos grupos de edad, sexo y comunidad autónoma",
+                                   "Variable Tasas de actividad de la población de 16 y más años 
+                                          y de la población de 16 a 64 años por sexo y comunidad autónoma")),
+           fluidRow(
+             
+             column(5, 
+                    wellPanel(
+                      h4("Descargar Variable seleccionada en Excel"),
+                      h5("Mimo documento que se puede encontrar en el INE"),
+                      downloadButton("descargarExcel", label = "Descargar")
+                    )
+             ),
+             column(5,
+                    wellPanel(
+                      h4("Descargar la variable seleccionada en csv"),
+                      h5("Con las modificaciones hechas en el codigo"),
+                      downloadButton("descargarVariables", label = "Descargar")
+                    )
+             ),
+             column(5,
+                    wellPanel(
+                      h4("Descargar el código"),
+                      downloadButton("descargarCodigo", label = "Descargar")
+                    )
+             )
+             
+           )
+           
+  )
 )
 
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   
-  output$com <-{(
-    renderText(input$com)
-  )}
+  #############VARIABLE 1  #############
   
-  output$sexo <-{(
-    renderText(input$sexo)
-  )}
-  output$edad <-{(
-    renderText(input$edad)
-  )}
   
-  tabla1<-reactive({
-    #ambos sexos 
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Ambos sexos") && (input$edad1 == 1)){
-        return( as.data.frame( ambos_total.1[i,14:2], drop=false))
-      }
-    }
-    
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Ambos sexos") && (input$edad1 == 2)){
-        return( as.data.frame( ambos_16_19.1[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Ambos sexos") && (input$edad1 == 3)){
-        return( as.data.frame( ambos_20_24.1[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Ambos sexos") && (input$edad1 == 4)){
-        return( as.data.frame( ambos_25_34.1[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Ambos sexos") && (input$edad1 == 5)){
-        return( as.data.frame( ambos_35_44.1[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Ambos sexos") && (input$edad1 == 6)){
-        return( as.data.frame( ambos_45_54.1[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Ambos sexos") && (input$edad1 == 7)){
-        return( as.data.frame( ambos_55_mas.1[i,14:2], drop=false))
-      }
-    }
-    
-    #Hombres
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Hombres") && (input$edad1 == 1)){
-        return( as.data.frame( hombres_total.1[i,14:2], drop=false))
-      }
-    }
-    
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Hombres") && (input$edad1 == 2)){
-        return( as.data.frame( hombres_16_19.1[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Hombres") && (input$edad1 == 3)){
-        return( as.data.frame( hombres_20_24.1[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Hombres") && (input$edad1 == 4)){
-        return( as.data.frame( hombres_25_34.1[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Hombres") && (input$edad1 == 5)){
-        return( as.data.frame( hombres_35_44.1[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Hombres") && (input$edad1 == 6)){
-        return( as.data.frame( hombres_45_54.1[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Hombres") && (input$edad1 == 7)){
-        return( as.data.frame( hombres_55_mas.1[i,14:2], drop=false))
-      }
-    }
-    
-    #MUJERES
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Mujeres") && (input$edad1 == 1)){
-        return( as.data.frame( mujeres_total.1[i,14:2], drop=false))
-      }
-    }
-    
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Mujeres") && (input$edad1 == 2)){
-        return( as.data.frame( mujeres_16_19.1[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Mujeres") && (input$edad1 == 3)){
-        return( as.data.frame( mujeres_20_24.1[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Mujeres") && (input$edad1 == 4)){
-        return( as.data.frame( mujeres_25_34.1[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Mujeres") && (input$edad1 == 5)){
-        return( as.data.frame( mujeres_35_44.1[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Mujeres") && (input$edad1 == 6)){
-        return( as.data.frame( mujeres_45_54.1[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com1 == i)&& (input$sexo1== "Mujeres") && (input$edad1 == 7)){
-        return( as.data.frame( mujeres_55_mas.1[i,14:2], drop=false))
-      }
-    }
-    
-  })
   output$graf1 <- renderPlotly({
     
     
+  })
+  
+  output$dat1 <- renderTable({
+    tabla<-activos_valores_Abs[activos_valores_Abs$Edad==input$edad1 & activos_valores_Abs$Sexo==input$sexo1 & activos_valores_Abs$Comunidades==input$com1 ,];
+    tabla<-subset(tabla, select=c("Periodo", "Valor"))
     
-    activos1 <-t(tabla1())
-    año1<- rownames(activos1)
-    df1 <- data.frame(año1,
-                      activos1)
-    ggplot(data=df1, aes(x=año1, y=activos1, group=1)) +
+  })
+  output$tab1 <- renderTable({
+    tabla<-activos_valores_Abs[activos_valores_Abs$Edad==input$edad1 & activos_valores_Abs$Sexo==input$sexo1 & activos_valores_Abs$Periodo==input$años1 ,];
+    tabla<-subset(tabla, select=c("Comunidades", "Valor"))
+    
+  })
+  output$graf1 <- renderPlotly({
+    graf<-activos_valores_Abs[activos_valores_Abs$Edad==input$edad2 & activos_valores_Abs$Sexo==input$sexo2 & activos_valores_Abs$Comunidades==input$com2 ,];
+    graf<-as.data.frame(graf);
+    graf1<-t(t(graf[5]));
+    años1<-t(t(años))
+    
+    df1 <- data.frame(años1,
+                      graf1)
+    ggplot(data=df1, aes(x=años1, y=graf1, group=1))+
       geom_line(color="#4f94cd")+
       geom_point(color="#00688b")+
       xlab("Años")+
@@ -830,332 +287,174 @@ server <- function(input, output) {
       theme_classic()
     
   })
-  output$dat1 <- renderTable({
-    tabla1()
-  })
   
-  tabla2<- reactive({
-    #ambos sexos 
-    
-    
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Ambos sexos") && (input$edad2 == 2)){
-        return( as.data.frame( ambos_16_19.2[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Ambos sexos") && (input$edad2 == 3)){
-        return( as.data.frame( ambos_20_24.2[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Ambos sexos") && (input$edad2 == 4)){
-        return( as.data.frame( ambos_25_34.2[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Ambos sexos") && (input$edad2 == 5)){
-        return( as.data.frame( ambos_35_44.2[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Ambos sexos") && (input$edad2 == 6)){
-        return( as.data.frame( ambos_45_54.2[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Ambos sexos") && (input$edad2 == 7)){
-        return( as.data.frame( ambos_55_mas.2[i,14:2], drop=false))
-      }
-    }
-    
-    #Hombres
-    
-    
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Hombres") && (input$edad2 == 2)){
-        return( as.data.frame( hombres_16_19.2[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Hombres") && (input$edad2 == 3)){
-        return( as.data.frame( hombres_20_24.2[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Hombres") && (input$edad2 == 4)){
-        return( as.data.frame( hombres_25_34.2[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Hombres") && (input$edad2 == 5)){
-        return( as.data.frame( hombres_35_44.2[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Hombres") && (input$edad2 == 6)){
-        return( as.data.frame( hombres_45_54.2[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Hombres") && (input$edad2 == 7)){
-        return( as.data.frame( hombres_55_mas.2[i,14:2], drop=false))
-      }
-    }
-    
-    #MUJERES
-    
-    
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Mujeres") && (input$edad2 == 2)){
-        return( as.data.frame( mujeres_16_19.2[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Mujeres") && (input$edad2 == 3)){
-        return( as.data.frame( mujeres_20_24.2[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Mujeres") && (input$edad2 == 4)){
-        return( as.data.frame( mujeres_25_34.2[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Mujeres") && (input$edad2 == 5)){
-        return( as.data.frame( mujeres_35_44.2[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Mujeres") && (input$edad2 == 6)){
-        return( as.data.frame( mujeres_45_54.2[i,14:2], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com2 == i)&& (input$sexo2== "Mujeres") && (input$edad2 == 7)){
-        return( as.data.frame( mujeres_55_mas.2[i,14:2], drop=false))
-      }
-    }
-  })
+  
+  #############VARIABLE 2  #############
+  
   
   output$graf2 <- renderPlotly({
-    
-    activos2 <-t(tabla2())
-    año2<- rownames(activos2)
-    df2 <- data.frame(año2,
-                      activos2)
-    ggplot(data=df2, aes(x=año2, y=activos2, group=1)) +
-      geom_line(color="#4f94cd")+
-      geom_point(color="#00688b")+
-      xlab("Años")+
-      ylab("Porcentaje respecto al total de cada comunidad ")+
-      theme_classic()
     
     
   })
   
   output$dat2 <- renderTable({
-    tabla2()
+    tabla<-Activos_Porcentajes_respecto_total[Activos_Porcentajes_respecto_total$Edad==input$edad2 & Activos_Porcentajes_respecto_total$Sexo==input$sexo2 & Activos_Porcentajes_respecto_total$Comunidades==input$com2 ,];
+    tabla<-subset(tabla, select=c("Periodo", "Valor"))
+    
   })
   
-  tabla3<-reactive({
-     #ambos sexos 
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Ambos sexos") && (input$edad3 == 1)){
-        return( as.data.frame( ambos_total.3[i,2:14], drop=false))
-      }
-    }
-    
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Ambos sexos") && (input$edad3 == 2)){
-        return( as.data.frame( ambos_16_19.3[i,2:14], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Ambos sexos") && (input$edad3 == 3)){
-        return( as.data.frame( ambos_20_24.3[i,2:14], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Ambos sexos") && (input$edad3 == 4)){
-        return( as.data.frame( ambos_25_54.3[i,2:14], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Ambos sexos") && (input$edad3 == 5)){
-        return( as.data.frame( ambos_55_mas.3[i,2:14], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Ambos sexos") && (input$edad3 == 6)){
-        return( as.data.frame( ambos_menos25.3[i,2:14], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Ambos sexos") && (input$edad3 == 7)){
-        return( as.data.frame( ambos_25_mas.3[i,2:14], drop=false))
-      }
-    }
-    
-    #Hombres
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Hombres") && (input$edad3 == 1)){
-        return( as.data.frame( hombres_total.3[i,2:14], drop=false))
-      }
-    }
-    
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Hombres") && (input$edad3 == 2)){
-        return( as.data.frame( hombres_16_19.3[i,2:14], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Hombres") && (input$edad3 == 3)){
-        return( as.data.frame( hombres_20_24.3[i,2:14], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Hombres") && (input$edad3 == 4)){
-        return( as.data.frame( hombres_25_54.3[i,2:14], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Hombres") && (input$edad3 == 5)){
-        return( as.data.frame( hombres_55_mas.3[i,2:14], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Hombres") && (input$edad3 == 6)){
-        return( as.data.frame( hombres_menos_25.3[i,2:14], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Hombres") && (input$edad3 == 7)){
-        return( as.data.frame( hombres_25_mas.3[i,2:14], drop=false))
-      }
-    }
-    
-    #MUJERES
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Mujeres") && (input$edad3 == 1)){
-        return( as.data.frame( mujeres_total.3[i,2:14], drop=false))
-      }
-    }
-    
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Mujeres") && (input$edad3 == 2)){
-        return( as.data.frame( mujeres_16_19.3[i,2:14], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Mujeres") && (input$edad3 == 3)){
-        return( as.data.frame( mujeres_20_24.3[i,2:14], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Mujeres") && (input$edad3 == 4)){
-        return( as.data.frame( mujeres_25_54.3[i,2:14], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Mujeres") && (input$edad3 == 5)){
-        return( as.data.frame( mujeres_55_mas.3[i,2:14], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Mujeres") && (input$edad3 == 6)){
-        return( as.data.frame( mujeres_menos_25.3[i,2:14], drop=false))
-      }
-    }
-    for (i in 1:20){
-      if ((input$com3 == i)&& (input$sexo3== "Mujeres") && (input$edad3 == 7)){
-        return( as.data.frame( mujeres_25_mas.3[i,2:14], drop=false))
-      }
-    }
+  output$tab2 <- renderTable({
+    tabla<-Activos_Porcentajes_respecto_total[Activos_Porcentajes_respecto_total$Edad==input$edad2 & Activos_Porcentajes_respecto_total$Sexo==input$sexo2 & Activos_Porcentajes_respecto_total$Periodo==input$años2 ,];
+    tabla<-subset(tabla, select=c("Comunidades", "Valor"))
     
   })
-  output$graf3 <- renderPlotly({
+  
+  output$graf2 <- renderPlotly({
+    graf<-Activos_Porcentajes_respecto_total[Activos_Porcentajes_respecto_total$Edad==input$edad2 & Activos_Porcentajes_respecto_total$Sexo==input$sexo2 & Activos_Porcentajes_respecto_total$Comunidades==input$com2 ,];
+    graf<-as.data.frame(graf);
+    graf2<-t(t(graf[5]));
+    años2<-t(t(años))
     
-    activos3 <-t(tabla3())
-    año3<- rownames(activos3)
-    df3 <- data.frame(año3,
-                     activos3)
-    ggplot(data=df3, aes(x=año3, y=activos3, group=1)) +
+    df2 <- data.frame(años2,
+                      graf2)
+    ggplot(data=df2, aes(x=años2, y=graf2, group=1))+
       geom_line(color="#4f94cd")+
       geom_point(color="#00688b")+
       xlab("Años")+
       ylab("Valores absolutos ")+
       theme_classic()
     
+  })
+  
+  
+  #############VARIABLE 3  #############
+  
+  
+  output$graf3 <- renderPlotly({
+    
     
   })
+  
   output$dat3 <- renderTable({
-    tabla3()
-  })
-  
-  
-  tabla4<- reactive({
-    #edades totales
-    for (i in 1:20){
-      if ((input$com4 == i)&& (input$sexo4== "Ambos sexos") && (input$edad4 == "Total")){
-        return( as.data.frame( total_ambos.4[i,14:2], drop=false))
-        
-      }
-    }
-    
-    for (i in 1:20){
-      if ((input$com4 == i)&& (input$sexo4== "Hombres") && (input$edad4 == "Total")){
-        return( as.data.frame( total_hombres.4[i,14:2], drop=false))
-      }
-    }
-    
-    for (i in 1:20){
-      if ((input$com4 == i)&& (input$sexo4== "Mujeres") && (input$edad4 == "Total")){
-        return(as.data.frame( total_mujeres.4[i,14:2], drop=false))
-      }
-    }
-    
-    #de 16 a 64 años
-    
-    for (i in 1:20){
-      if ((input$com4 == i)&& (input$sexo4== "Ambos sexos") && (input$edad4 == "De 16 a 64 años")){
-        return( as.data.frame( ambos_16_64.4[i,14:2], drop=false))
-      }
-    }
-    
-    for (i in 1:20){
-      if ((input$com4 == i)&& (input$sexo4== "Hombres") && (input$edad4 == "De 16 a 64 años")){
-        return (as.data.frame( hombres_16_64.4[i,14:2], drop=false))
-      }
-    }
-    
-    for (i in 1:20){
-      if ((input$com4 == i)&& (input$sexo4== "Mujeres") && (input$edad4 == "De 16 a 64 años")){
-        return( as.data.frame( mujeres_16_64.4[i,14:2], drop=false))
-      }
-    }
-    
+    tabla<-Tasas_actividad[Tasas_actividad$Edad==input$edad3 & Tasas_actividad$Sexo==input$sexo3 & Tasas_actividad$Comunidades==input$com3 ,];
+    tabla<-subset(tabla, select=c("Periodo", "Valor"))
     
   })
-  output$graf4 <- renderPlotly({
+  output$tab3 <- renderTable({
+    tabla<-Tasas_actividad[Tasas_actividad$Edad==input$edad3 & Tasas_actividad$Sexo==input$sexo3 & Tasas_actividad$Periodo==input$años3 ,];
+    tabla<-subset(tabla, select=c("Comunidades", "Valor"))
     
-    activos4 <-t(tabla4())
-    año4<- rownames(activos4)
-    df4 <- data.frame(año4,
-                      activos4)
-    ggplot(data=df4, aes(x=año4, y=activos4, group=1)) +
+  })
+  
+  output$graf3 <- renderPlotly({
+    graf<-Tasas_actividad[Tasas_actividad$Edad==input$edad3 & Tasas_actividad$Sexo==input$sexo3 & Tasas_actividad$Comunidades==input$com3 ,];
+    graf<-as.data.frame(graf);
+    graf3<-t(t(graf[5]));
+    años3<-t(t(años))
+    
+    df3 <- data.frame(años,
+                      graf)
+    ggplot(data=df3, aes(x=años3, y=graf3, group=1))+
       geom_line(color="#4f94cd")+
       geom_point(color="#00688b")+
       xlab("Años")+
-      ylab("Tasas de actividad ")+
+      ylab("Valores absolutos ")+
       theme_classic()
     
+  })
+  
+  
+  
+  
+  
+  #############VARIABLE 4  #############
+  
+  
+  output$graf4 <- renderPlotly({
+    graf<-activos_vabs[activos_vabs$Edad==input$edad4 & activos_vabs$Sexo==input$sexo4 & activos_vabs$Comunidades==input$com4 ,];
+    graf<-as.data.frame(graf);
+    graf4<-t(t(graf[5]));
+    años4<-t(t(años))
+    
+    df4 <- data.frame(años4,
+                      graf4)
+    ggplot(data=df4, aes(x=años4, y=graf4, group=1))+
+      geom_line(color="#4f94cd")+
+      geom_point(color="#00688b")+
+      xlab("Años")+
+      ylab("Valores absolutos ")+
+      theme_classic()
     
   })
   
   output$dat4 <- renderTable({
-    tabla4()
+    tabla<-activos_vabs[activos_vabs$Edad==input$edad4 & activos_vabs$Sexo==input$sexo4 & activos_vabs$Comunidades==input$com4 ,];
+    tabla<-subset(tabla, select=c("Periodo", "Valor"))
+    
   })
+  
+  output$tab4 <- renderTable({
+    tabla<-activos_vabs[activos_vabs$Edad==input$edad4 & activos_vabs$Sexo==input$sexo4 & activos_vabs$Periodo==input$años4 ,];
+    tabla<-subset(tabla, select=c("Comunidades", "Valor"))
+    
+  })
+  
+  
+  ######### DESCARGAS ########
+  
+  
+  
+  output$descargarExcel <- downloadHandler(
+    filename = "variable.xlsx",
+    content = function(file) {
+      if (input$dataset == "Activos por grupo de edad, sexo y comunidad autónoma. Valores absolutos"){
+        file.copy ("/Users/Loreto/Documents/Universidad /Economia mundial, española y regional/Intento final/Variables Excel/4932.xlsx", file)
+      }
+      if (input$dataset == "Activos por grupo de edad, sexo y comunidad autónoma. Porcentajes respecto del total de cada
+                              comunidad"){
+        file.copy ("/Users/Loreto/Documents/Universidad /Economia mundial, española y regional/Intento final/Variables Excel/4934.xlsx", file)
+      }
+      if (input$dataset == "Tasas de actividad por distintos grupos de edad, sexo y comunidad autónoma"){
+        file.copy ("/Users/Loreto/Documents/Universidad /Economia mundial, española y regional/Intento final/Variables Excel/4933.xlsx", file)
+      }
+      if (input$dataset == "Variable Tasas de actividad de la población de 16 y más años 
+                                          y de la población de 16 a 64 años por sexo y comunidad autónoma"){
+        file.copy ("/Users/Loreto/Documents/Universidad /Economia mundial, española y regional/Intento final/Variables Excel/4935.xlsx", file)
+      }
+    }
+  )
+  
+  
+  
+  output$descargarCodigo <- downloadHandler(
+    filename = "codigo.R",
+    content = function(file) {
+      file.copy("/Users/Loreto/Documents/Universidad /Economia mundial, española y regional/Intento final/Loreto.R", file)
+    }
+  )
+  
+  
+  output$descargarVariables <- downloadHandler(
+    filename = "variable.csv",
+    content = function(file) {
+       if (input$dataset == "Activos por grupo de edad, sexo y comunidad autónoma. Valores absolutos"){
+        write.csv(activos_valores_Abs[], file, row.names = FALSE)
+      }
+      if (input$dataset == "Activos por grupo de edad, sexo y comunidad autónoma. Porcentajes respecto del total de cada
+                              comunidad"){
+       write.csv(Activos_Porcentajes_respecto_total[], file, row.names = FALSE)
+      }
+      if (input$dataset == "Tasas de actividad por distintos grupos de edad, sexo y comunidad autónoma"){
+        write.csv(Tasas_actividad[], file, row.names = FALSE)
+      }
+      if (input$dataset == "Variable Tasas de actividad de la población de 16 y más años 
+                                          y de la población de 16 a 64 años por sexo y comunidad autónoma"){
+        write.csv(activos_vabs[], file, row.names = FALSE)
+      }
+      
+    }
+  )
+  
   
   
 }
@@ -1163,8 +462,7 @@ server <- function(input, output) {
 # Run the application
 shinyApp(ui = ui, server = server)
 
+
 ```
-
-
 
 
