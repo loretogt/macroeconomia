@@ -4,7 +4,7 @@
 Loreto: Loreto Garcia Tejada
 Titulación: Doble grado en II + ADE - 2019/2020
 Asignatura: Macroeconomía Avanzada y Aplicada ( Economía mundial, española y regional)
-Versión: 2.0
+Versión: 2.1
 
 Variables analizadas en este documento
 
@@ -13,7 +13,7 @@ Activos por grupo de edad, sexo y comunidad autónoma. Porcentajes respecto del 
 Tasas de actividad por distintos grupos de edad, sexo y comunidad autónoma
 Variable Tasas de actividad de la población de 16 y más años y de la población de 16 a 64 años por sexo y comunidad autónoma
 
-Links donde están las variables 
+
 http://www.ine.es/jaxiT3/Tabla.htm?t=4932&L=0
 http://www.ine.es/jaxiT3/Tabla.htm?t=4934&L=0
 http://www.ine.es/jaxiT3/Tabla.htm?t=4933&L=0
@@ -210,6 +210,8 @@ ui <- navbarPage(
                       )
              )
   ),
+    tabPanel("Protocolo "
+  ),
   tabPanel("Informe "
   ),
   
@@ -272,7 +274,7 @@ server <- function(input, output) {
     
   })
   output$graf1 <- renderPlotly({
-    graf<-activos_valores_Abs[activos_valores_Abs$Edad==input$edad2 & activos_valores_Abs$Sexo==input$sexo2 & activos_valores_Abs$Comunidades==input$com2 ,];
+    graf<-activos_valores_Abs[activos_valores_Abs$Edad==input$edad1 & activos_valores_Abs$Sexo==input$sexo1 & activos_valores_Abs$Comunidades==input$com1 ,];
     graf<-as.data.frame(graf);
     graf1<-t(t(graf[5]));
     años1<-t(t(años))
@@ -464,5 +466,9 @@ shinyApp(ui = ui, server = server)
 
 
 ```
+
+
+
+
 
 
